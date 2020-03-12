@@ -8,60 +8,72 @@ class Playlists extends StatefulWidget {
 }
 
 class _PlaylistsState extends State<Playlists> {
+  final library = [
+    {'name': 'Staying Alive', 'artist': 'BeeGees', 'duration': 3, 'favorite': false},
+    {'name': 'Whats new, Pussycat?', 'artist': 'Tom Jones', 'duration': 2, 'favorite': false},
+    {'name': 'Wandering Star', 'artist': 'Portishead', 'duration': 6, 'favorite': false},
+    {'name': 'Stargazing', 'artist': 'Kygo', 'duration': 3, 'favorite': false},
+    {'name': 'Falling on My Face', 'artist': 'Arutani', 'duration': 8, 'favorite': false},
+    {'name': 'Parallel Universe', 'artist': 'Red Hot Chili Peppers', 'duration': 6, 'favorite': false},
+    {'name': 'N.I.B', 'artist': 'Black Sabbath', 'duration': 5, 'favorite': false},
+    {'name': 'Thinking of a Place', 'artist': 'The War on Drugs', 'duration': 11, 'favorite': false},
+    {'name': 'Fuck You Bitch', 'artist': 'Wheeler Walker Jr', 'duration': 4, 'favorite': false},
+    {'name': 'Bohemian Like You', 'artist': 'The Dandy Warhols', 'duration': 3, 'favorite': false},
+    {'name': 'Planet Caravan', 'artist': 'Black Sabbath', 'duration': 7, 'favorite': false},
+  ];
+
   List playlists = [
     {
       'name': 'My Playlist',
       'songs': [
-        {'name': 'Staying Alive', 'duration': 3},
-        {'name': 'Whats new, Pussycat?', 'duration': 2},
-        {'name': 'Wandering Star', 'duration': 6},
+        {'name': 'Staying Alive', 'artist': 'BeeGees', 'duration': 3},
+        {'name': 'Whats new, Pussycat?', 'artist': 'Tom Jones', 'duration': 2},
+        {'name': 'Wandering Star', 'artist': 'Portishead', 'duration': 6},
       ],
     },
     {
       'name': 'Summer Jams',
       'songs': [
-        {'name': 'Stargazing', 'duration': 3},
-        {'name': 'Falling on My Face', 'duration': 8},
-        {'name': 'Parallel Universe', 'duration': 6},
-        {'name': 'N.I.B', 'duration': 5},
+        {'name': 'Stargazing', 'artist': 'Kygo', 'duration': 3},
+        {'name': 'Falling on My Face', 'artist': 'Arutani', 'duration': 8},
+        {'name': 'Parallel Universe', 'artist': 'Red Hot Chili Peppers', 'duration': 6},
+        {'name': 'N.I.B', 'artist': 'Black Sabbath', 'duration': 5},
       ],
     }
   ];
 
-  List<Widget> buildPlaylists() {
-    List<Widget> playlist_list = [];
-    playlists.asMap().forEach((index, playlist) {
-      playlist_list.add(Playlist(
-        Key(index.toString()),
-        playlist['name'],
-        playlist['songs'],
-      ));
-    });
-    return playlist_list;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        actions: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: GestureDetector(
-              onTap: () {},
-              child: CircleAvatar(
-                radius: 18,
-                backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=3'),
-              ),
-            ),
+        title: Text(
+          'PlaylistFactory',
+          style: TextStyle(fontSize: 32, color: Colors.white),
+        ),
+        bottom: PreferredSize(
+          child: Container(
+            color: Colors.yellowAccent,
+            height: 2.0,
           ),
-        ],
+          preferredSize: Size.fromHeight(2.0),
+        ),
       ),
-      body: ListView(
-        children: buildPlaylists(),
-      ),
+      body: ListView.builder(
+          itemCount: playlists.length,
+          itemBuilder: (context, index) {
+            return Playlist(
+              index,
+              playlists[index],
+              library,
+              (playlist, song) {
+                setState(() {
+                  playlists[playlist]['songs'].add(song);
+                });
+              },
+            );
+          }),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           String playlistName;
@@ -80,12 +92,7 @@ class _PlaylistsState extends State<Playlists> {
                     setState(() {
                       playlists.add({
                         'name': playlistName,
-                        'songs': [
-                          {'name': 'Stargazing', 'duration': 3},
-                          {'name': 'Falling on My Face', 'duration': 8},
-                          {'name': 'Parallel Universe', 'duration': 6},
-                          {'name': 'N.I.B', 'duration': 5},
-                        ],
+                        'songs': [],
                       });
                     });
                     Navigator.pop(context);

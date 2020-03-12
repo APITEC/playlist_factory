@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class Playlist extends StatelessWidget {
-  final key;
-  final name;
-  final songs;
+import 'song_list.dart';
 
-  Playlist(this.key, this.name, this.songs);
+class Playlist extends StatelessWidget {
+  final index;
+  final playlist;
+  final library;
+  final callback;
+
+  Playlist(this.index, this.playlist, this.library, this.callback);
 
   int playlistDuration() {
     int totalLength = 0;
-    songs.forEach((song) {
+    playlist['songs'].forEach((song) {
       totalLength += song['duration'];
     });
     return totalLength;
@@ -19,15 +22,26 @@ class Playlist extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: key,
+      key: Key(index.toString()),
       confirmDismiss: (direction) async {
         if (direction == DismissDirection.endToStart) {
           bool delete;
           await showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              title: Text('Delete Playlist?'),
-              content: Text('This action cannot be undone.'),
+              backgroundColor: Colors.grey[900],
+              title: Text(
+                'Delete Playlist?',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+              content: Text(
+                'This action cannot be undone.',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
               actions: <Widget>[
                 FlatButton(
                   onPressed: () {
@@ -36,7 +50,7 @@ class Playlist extends StatelessWidget {
                   },
                   child: Text(
                     'No',
-                    style: TextStyle(color: Colors.black),
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
                 FlatButton(
@@ -46,7 +60,7 @@ class Playlist extends StatelessWidget {
                   },
                   child: Text(
                     'Yes',
-                    style: TextStyle(color: Colors.redAccent),
+                    style: TextStyle(color: Colors.yellowAccent),
                   ),
                 ),
               ],
@@ -57,7 +71,13 @@ class Playlist extends StatelessWidget {
           await showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              title: Text('Rename Playlist?'),
+              backgroundColor: Colors.grey[900],
+              title: Text(
+                'Rename Playlist?',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
               content: TextField(),
               actions: <Widget>[
                 FlatButton(
@@ -66,7 +86,7 @@ class Playlist extends StatelessWidget {
                   },
                   child: Text(
                     'Rename',
-                    style: TextStyle(color: Colors.black),
+                    style: TextStyle(color: Colors.yellowAccent),
                   ),
                 ),
               ],
@@ -83,26 +103,61 @@ class Playlist extends StatelessWidget {
       ),
       child: ListTile(
         title: Text(
-          name,
+          playlist['name'],
           style: TextStyle(
             color: Colors.white,
             fontSize: 24,
           ),
         ),
         subtitle: Text(
-          '${songs.length} Songs, ${playlistDuration()} Minutes',
+          '${playlist['songs'].length} Songs, ${playlistDuration()} Minutes',
           style: TextStyle(color: Colors.white),
         ),
         trailing: IconButton(
           onPressed: () {
-            launch('https://api.whatsapp.com/send?text=Hey!%20Check%20out%20this%20new%20playlist%20I%20created%20using%20PlaylistFactory!%20https://playlistfactory.com/$name');
+            showBottomSheet(
+              context: context,
+              builder: (context) => Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ListTile(
+                    leading: Icon(Icons.mail),
+                    title: Text('Send Email'),
+                    onTap: () {
+                      launch('mailto:smith@example.org?subject=Check%20Out%20My%20New%20Playlist&body=Hey!%20Check%20out%20this%20new%20playlist%20I%20created%20using%20PlaylistFactory!%20https://playlistfactory.com/${playlist['name']}');
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.sms),
+                    title: Text('Send Whatsapp'),
+                    onTap: () {
+                      launch('https://api.whatsapp.com/send?text=Hey!%20Check%20out%20this%20new%20playlist%20I%20created%20using%20PlaylistFactory!%20https://playlistfactory.com/${playlist['name']}');
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            );
           },
           icon: Icon(
             Icons.share,
-            color: Colors.white,
+            color: Colors.yellowAccent,
           ),
         ),
-        onTap: () {},
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SongList(
+                index: index,
+                playlist: playlist,
+                library: library,
+                callback: callback,
+              ),
+            ),
+          );
+        },
       ),
     );
   }
